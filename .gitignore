@@ -1,15 +1,33 @@
+# Android Studio
 *.iml
-.gradle
-/local.properties
+.gradle/
+local.properties
+/.idea/
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/httpRequests
+
+# Mac
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+
+# Windows
+Thumbs.db
+
+# Build output
+/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Log files
+*.log
+
+# VSCode (if used)
+.vscode/
+
+# NDK/Other temp
+cmake-build-debug/
