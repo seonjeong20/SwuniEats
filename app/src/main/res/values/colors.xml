@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="swured">#9E1A20</color>
+    <color name="swured2">#641A20</color>
+    <color name="swublue">#101077</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
