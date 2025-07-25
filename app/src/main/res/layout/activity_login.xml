@@ -58,14 +58,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <Button
         android:id="@+id/registerButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="8dp"
-        android:text="회원가입 하기"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordText2" />
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="13dp"
+        android:text="회원가입하기"
+        app:layout_constraintTop_toBottomOf="@+id/passwordText2"
+        tools:layout_editor_absoluteX="31dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

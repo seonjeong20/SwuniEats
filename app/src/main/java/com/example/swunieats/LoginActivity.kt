@@ -44,8 +44,13 @@ class LoginActivity : AppCompatActivity() {
             // DB에서 아이디와 비밀번호가 일치하는지 확인
             if (dbHelper.checkUser(id, pw)) {
                 Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
-                // TODO: 홈화면으로 이동하거나 다음 액티비티로 전환
-                // startActivity(Intent(this, MainActivity::class.java))
+
+                // 👉 MainActivity로 이동
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+
+                // 👉 현재 로그인 액티비티는 종료 (뒤로가기 눌러도 안 돌아오게)
+                finish()
             } else {
                 Toast.makeText(this, "아이디 또는 비밀번호가 올바르지 않습니다", Toast.LENGTH_SHORT).show()
             }
