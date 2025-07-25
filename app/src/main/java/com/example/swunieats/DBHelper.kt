@@ -73,5 +73,38 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "UserDB.db", null, 
         return duplicate
     }
 
+
+
+    // 채팅방 목록 가져오기
+    fun getAllChatrooms(): List<Chatroom> {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM chatrooms", null)
+        val result = mutableListOf<Chatroom>()
+
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(0)
+            val name = cursor.getString(1)
+            val time = cursor.getString(2)
+            val location = cursor.getString(3)
+            result.add(Chatroom(id, name, time, location))
+        }
+        cursor.close()
+        return result
+    }
+
+   // 채팅방 정보를 저장하는 chatrooms 테이블을 생성하는 함수
+    fun createChatroomTable(db: SQLiteDatabase) {
+        db.execSQL(
+            """
+        CREATE TABLE IF NOT EXISTS chatrooms (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            time TEXT,
+            location TEXT
+        )
+        """
+        )
+    }
+
     //추가적으로 필요한 함수는 아래로 작성해주세요!
 }
