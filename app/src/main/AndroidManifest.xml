@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SwuniEats"
         tools:targetApi="31">
+        <activity android:name=".CreateRoomActivity" android:exported="false" />
         <activity
             android:name=".CalculatorActivity"
             android:exported="false" />
