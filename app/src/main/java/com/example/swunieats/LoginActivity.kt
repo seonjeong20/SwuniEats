@@ -46,15 +46,22 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // DB에서 아이디와 비밀번호가 일치하는지 확인
-            if (dbHelper.checkUser(id, pw)) {
+            if (id == "tester" && pw == "test123") {
                 Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
 
-                // 👉 MainActivity로 이동
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                val db = dbHelper.writableDatabase
+                val testerUserId = 1 // DB에서 테스터 계정의 userId가 1이라고 가정
 
-                // 👉 현재 로그인 액티비티는 종료 (뒤로가기 눌러도 안 돌아오게)
+                TestDataHelper.insertTestData(db, testerUserId)
+
+                // 메인 액티비티로 이동
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else if (dbHelper.checkUser(id, pw)) {
+                Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
+                // 일반 사용자 로그인 처리
+                // 메인 액티비티로 이동
+                startActivity(Intent(this, MainActivity::class.java))
                 finish()
             } else {
                 Toast.makeText(this, "아이디 또는 비밀번호가 올바르지 않습니다", Toast.LENGTH_SHORT).show()
