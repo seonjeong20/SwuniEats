@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             if (id == "tester" && pw == "test123") {
-                Toast.makeText(this, "테스터 계정 로그인 성공!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
 
                 val db = dbHelper.writableDatabase
                 val testerUserId = 1 // DB에서 테스터 계정의 userId가 1이라고 가정
