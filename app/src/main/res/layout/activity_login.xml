@@ -48,7 +48,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="140dp"
         android:text="로그인"
         android:textColor="#000000"
         android:textSize="24sp"
@@ -58,12 +58,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/registerButton2"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="13dp"
+    <TextView
+        android:id="@+id/tvRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="회원가입하기"
-        app:layout_constraintTop_toBottomOf="@+id/passwordText2"
-        tools:layout_editor_absoluteX="31dp" />
+        android:textSize="14sp"
+        android:textColor="#888888"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/loginButton2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clickable="true"
+        android:focusable="true" />
 </androidx.constraintlayout.widget.ConstraintLayout>

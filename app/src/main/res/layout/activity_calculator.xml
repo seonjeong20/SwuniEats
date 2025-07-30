@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fitsSystemWindows="true"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/rootLayout"
@@ -25,12 +28,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- 배달비 입력 필드 -->
+        <EditText
+            android:id="@+id/etDeliveryFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="배달비 입력"
+            android:inputType="number"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
         <!-- 최종 계산 버튼 -->
         <Button
             android:id="@+id/btnCalculate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="계산하기" />
+
+        <!-- 결과 출력 텍스트뷰 -->
+        <TextView
+            android:id="@+id/tvResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="#f0f0f0" />
 
     </LinearLayout>
 </ScrollView>

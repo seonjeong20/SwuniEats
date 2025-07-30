@@ -1,9 +1,11 @@
 package com.example.swunieats
 
 import android.content.Intent
+import android.graphics.Paint
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +17,7 @@ class LoginActivity : AppCompatActivity() {
     lateinit var edtId: EditText
     lateinit var edtPw: EditText
     lateinit var btnLogin: Button
-    lateinit var btnRegister: Button
+    lateinit var tvRegister: TextView
     lateinit var dbHelper: DBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +28,10 @@ class LoginActivity : AppCompatActivity() {
         edtId = findViewById(R.id.idText2)
         edtPw = findViewById(R.id.passwordText2)
         btnLogin = findViewById(R.id.loginButton2)
-        btnRegister = findViewById(R.id.registerButton2)
+        tvRegister = findViewById(R.id.tvRegister)
+
+        tvRegister.paintFlags = tvRegister.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+
 
         dbHelper = DBHelper(this)
 
@@ -57,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // 👉 회원가입 버튼 클릭 시 회원가입 화면으로 이동
-        btnRegister.setOnClickListener {
+        tvRegister.setOnClickListener {
             startActivity(Intent(this, SigninActivity::class.java))
         }
     }
