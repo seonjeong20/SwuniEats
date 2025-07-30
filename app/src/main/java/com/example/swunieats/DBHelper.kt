@@ -1,193 +1,243 @@
 package com.example.swunieats
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.content.ContentValues
-import android.database.Cursor
 
-// SQLiteOpenHelper를 상속받아 DB를 생성/업그레이드/조작할 수 있게 만든 클래스
-class DBHelper(context: Context) : SQLiteOpenHelper(context, "UserDB.db", null, 2) {
+class DBHelper(context: Context) :
+    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-    // 앱이 처음 설치될 때 실행됨 → 사용자 테이블 생성
-    override fun onCreate(db: SQLiteDatabase) {
-        // users 테이블 생성: id(아이디), name(이름), password(비밀번호)
-        // id는 PRIMARY KEY로 설정하여 중복 불가
-        db.execSQL(
-            "CREATE TABLE users (" +
-                    "id TEXT PRIMARY KEY, " +    // 고유 아이디 (중복 불가)
-                    "name TEXT, " +              // 사용자 이름
-                    "password TEXT)"             // 비밀번호
-        )
+    companion object {
+        const val DB_NAME = "UserDB.db"
+        const val DB_VERSION = 2
 
-        // chatrooms 테이블 생성
-        db.execSQL(
-            """
-        CREATE TABLE IF NOT EXISTS chatrooms (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            time TEXT,
-            location TEXT
-        )
-        """
-        )
-        db.execSQL(
-            """
-            CREATE TABLE menus (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                chatroomId INTEGER NOT NULL,
-                menuName TEXT NOT NULL,
-                price REAL NOT NULL
-            )
-            """
-        )
-        db.execSQL(
-            """
-            CREATE TABLE orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                chatroomId INTEGER NOT NULL,
-                userId TEXT NOT NULL,
-                menuId INTEGER NOT NULL,
-                quantity INTEGER DEFAULT 1,
-                personalCost REAL
-            )
-            """
-        )
+        // --- users table ---
+        const val TABLE_USERS    = "users"
+        const val COL_USER_ID    = "id"
+        const val COL_USER_NAME  = "name"
+        const val COL_USER_PW    = "password"
+
+        // --- chatrooms table ---
+        const val TABLE_CHATROOMS   = "chatrooms"
+        const val COL_CHAT_ID       = "id"
+        const val COL_CHAT_NAME     = "name"
+        const val COL_CHAT_TIME     = "time"
+        const val COL_CHAT_LOCATION = "location"
+
+        // --- menus table ---
+        const val TABLE_MENUS       = "menus"
+        const val COL_MENU_ID       = "id"
+        const val COL_MENU_CHAT_ID  = "chatroomId"
+        const val COL_MENU_NAME     = "menuName"
+        const val COL_MENU_PRICE    = "price"
+
+        // --- orders table ---
+        const val TABLE_ORDERS      = "orders"
+        const val COL_ORDER_ID      = "id"
+        const val COL_ORDER_CHAT_ID = "chatroomId"
+        const val COL_ORDER_USER_ID = "userId"
+        const val COL_ORDER_MENU_ID = "menuId"
+        const val COL_ORDER_QTY     = "quantity"
+        const val COL_ORDER_COST    = "personalCost"
     }
 
-    // DB 버전이 변경되었을 때 호출됨 (앱 업데이트 등)
+    override fun onCreate(db: SQLiteDatabase) {
+        // users
+        db.execSQL("""
+            CREATE TABLE $TABLE_USERS (
+                $COL_USER_ID   TEXT PRIMARY KEY,
+                $COL_USER_NAME TEXT,
+                $COL_USER_PW   TEXT
+            )
+        """.trimIndent())
+
+        // chatrooms
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS $TABLE_CHATROOMS (
+                $COL_CHAT_ID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COL_CHAT_NAME     TEXT,
+                $COL_CHAT_TIME     TEXT,
+                $COL_CHAT_LOCATION TEXT
+            )
+        """.trimIndent())
+
+        // menus
+        db.execSQL("""
+            CREATE TABLE $TABLE_MENUS (
+                $COL_MENU_ID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COL_MENU_CHAT_ID INTEGER NOT NULL,
+                $COL_MENU_NAME    TEXT NOT NULL,
+                $COL_MENU_PRICE   REAL NOT NULL
+            )
+        """.trimIndent())
+
+        // orders
+        db.execSQL("""
+            CREATE TABLE $TABLE_ORDERS (
+                $COL_ORDER_ID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COL_ORDER_CHAT_ID  INTEGER NOT NULL,
+                $COL_ORDER_USER_ID  TEXT NOT NULL,
+                $COL_ORDER_MENU_ID  INTEGER NOT NULL,
+                $COL_ORDER_QTY      INTEGER DEFAULT 1,
+                $COL_ORDER_COST     REAL
+            )
+        """.trimIndent())
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // 기존 테이블을 삭제하고 다시 생성 (간단한 구조 변경 처리용)
-        db.execSQL("DROP TABLE IF EXISTS users")
-        db.execSQL("DROP TABLE IF EXISTS chatrooms")
-        db.execSQL("DROP TABLE IF EXISTS menus")
-        db.execSQL("DROP TABLE IF EXISTS orders")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_CHATROOMS")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_MENUS")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_ORDERS")
         onCreate(db)
     }
 
-    // 회원가입 시 사용자 정보를 테이블에 저장하는 함수
+    // --- Users ---
     fun insertUser(id: String, name: String, password: String): Boolean {
-        val db = this.writableDatabase // 쓰기 가능한 DB 가져오기
-
-        // ContentValues를 이용해 key-value 형태로 데이터 구성
-        val values = ContentValues()
-        values.put("id", id)
-        values.put("name", name)
-        values.put("password", password)
-
-        // insert()는 성공하면 삽입된 행의 row ID를, 실패하면 -1을 반환함
-        val result = db.insert("users", null, values)
-        return result != -1L  // 삽입 성공 여부를 true/false로 반환
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COL_USER_ID, id)
+            put(COL_USER_NAME, name)
+            put(COL_USER_PW, password)
+        }
+        val result = db.insert(TABLE_USERS, null, values)
+        db.close()
+        return result != -1L
     }
 
-    // 로그인 시 사용자의 아이디와 비밀번호가 일치하는지 확인
     fun checkUser(id: String, password: String): Boolean {
-        val db = this.readableDatabase // 읽기 전용 DB 가져오기
-
-        // 해당 아이디와 비밀번호가 모두 일치하는 행을 조회
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM users WHERE id = ? AND password = ?",
-            arrayOf(id, password)
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COL_USER_ID),
+            "$COL_USER_ID = ? AND $COL_USER_PW = ?",
+            arrayOf(id, password),
+            null, null, null
         )
-
-        val exists = cursor.count > 0 // 일치하는 행이 하나라도 있다면 true
+        val exists = cursor.count > 0
         cursor.close()
+        db.close()
         return exists
     }
 
-    // 아이디 중복 확인 함수
     fun isIdDuplicate(id: String): Boolean {
-        val db = this.readableDatabase // 읽기 전용 DB 가져오기
-
-        // 같은 아이디가 이미 DB에 존재하는지 확인
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM users WHERE id = ?",
-            arrayOf(id)
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COL_USER_ID),
+            "$COL_USER_ID = ?",
+            arrayOf(id),
+            null, null, null
         )
-
-        val duplicate = cursor.count > 0 // 존재하면 true, 아니면 false
+        val duplicate = cursor.count > 0
         cursor.close()
+        db.close()
         return duplicate
     }
 
-    // chatrooms
+    // --- Chatrooms ---
     fun insertChatroom(name: String, time: String, location: String): Long {
         val db = writableDatabase
-        val cv = ContentValues().apply {
-            put("name", name)
-            put("time", time)
-            put("location", location)
+        val values = ContentValues().apply {
+            put(COL_CHAT_NAME, name)
+            put(COL_CHAT_TIME, time)
+            put(COL_CHAT_LOCATION, location)
         }
-        return db.insert("chatrooms", null, cv)
+        val id = db.insert(TABLE_CHATROOMS, null, values)
+        db.close()
+        return id
     }
 
     fun getAllChatrooms(): List<Chatroom> {
         val db = readableDatabase
-        val cursor = db.rawQuery("SELECT id, name, time, location FROM chatrooms", null)
+        val cursor = db.query(
+            TABLE_CHATROOMS,
+            arrayOf(COL_CHAT_ID, COL_CHAT_NAME, COL_CHAT_TIME, COL_CHAT_LOCATION),
+            null, null, null, null, "$COL_CHAT_ID ASC"
+        )
         val list = mutableListOf<Chatroom>()
         while (cursor.moveToNext()) {
-            list.add(
-                Chatroom(
-                    cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getString(2),
-                    cursor.getString(3)
-                )
+            list += Chatroom(
+                id       = cursor.getInt(cursor.getColumnIndexOrThrow(COL_CHAT_ID)),
+                name     = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHAT_NAME)),
+                time     = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHAT_TIME)),
+                location = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHAT_LOCATION))
             )
         }
         cursor.close()
+        db.close()
         return list
     }
 
-    // menus
+    // --- Menus ---
     fun insertMenu(chatroomId: Int, menuName: String, price: Double): Long {
         val db = writableDatabase
-        val cv = ContentValues().apply {
-            put("chatroomId", chatroomId)
-            put("menuName", menuName)
-            put("price", price)
+        val values = ContentValues().apply {
+            put(COL_MENU_CHAT_ID, chatroomId)
+            put(COL_MENU_NAME, menuName)
+            put(COL_MENU_PRICE, price)
         }
-        return db.insert("menus", null, cv)
+        val id = db.insert(TABLE_MENUS, null, values)
+        db.close()
+        return id
     }
 
     fun getMenusForChatroom(chatroomId: Int): List<Menu> {
         val db = readableDatabase
-        val cursor = db.rawQuery(
-            "SELECT id, menuName, price FROM menus WHERE chatroomId=?",
-            arrayOf(chatroomId.toString())
+        val cursor = db.query(
+            TABLE_MENUS,
+            arrayOf(COL_MENU_ID, COL_MENU_NAME, COL_MENU_PRICE),
+            "$COL_MENU_CHAT_ID = ?",
+            arrayOf(chatroomId.toString()),
+            null, null, "$COL_MENU_ID ASC"
         )
         val list = mutableListOf<Menu>()
         while (cursor.moveToNext()) {
-            list.add(
-                Menu(
-                    cursor.getInt(0),
-                    chatroomId,
-                    cursor.getString(1),
-                    cursor.getDouble(2)
-                )
+            list += Menu(
+                id         = cursor.getInt(cursor.getColumnIndexOrThrow(COL_MENU_ID)),
+                chatroomId = chatroomId,
+                menuName   = cursor.getString(cursor.getColumnIndexOrThrow(COL_MENU_NAME)),
+                price      = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_MENU_PRICE))
             )
         }
         cursor.close()
+        db.close()
         return list
     }
 
-    // orders
-    fun insertOrder(chatroomId: Int, userId: String, menuId: Int, quantity: Int = 1): Long {
+    // --- Orders ---
+    fun insertOrder(
+        chatroomId: Int,
+        userId: String,
+        menuId: Int,
+        quantity: Int = 1
+    ): Long {
         val db = writableDatabase
-        val cv = ContentValues().apply {
-            put("chatroomId", chatroomId)
-            put("userId", userId)
-            put("menuId", menuId)
-            put("quantity", quantity)
+        val values = ContentValues().apply {
+            put(COL_ORDER_CHAT_ID, chatroomId)
+            put(COL_ORDER_USER_ID, userId)
+            put(COL_ORDER_MENU_ID, menuId)
+            put(COL_ORDER_QTY, quantity)
         }
-        return db.insert("orders", null, cv)
+        val id = db.insert(TABLE_ORDERS, null, values)
+        db.close()
+        return id
     }
 
     fun updatePersonalCost(orderId: Int, cost: Double): Int {
         val db = writableDatabase
-        val cv = ContentValues().apply {
-            put("personalCost", cost)
+        val values = ContentValues().apply {
+            put(COL_ORDER_COST, cost)
         }
-        return db.update("orders", cv, "id=?", arrayOf(orderId.toString()))
+        val count = db.update(
+            TABLE_ORDERS,
+            values,
+            "$COL_ORDER_ID = ?",
+            arrayOf(orderId.toString())
+        )
+        db.close()
+        return count
     }
 }
