@@ -9,34 +9,29 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ChatroomAdapter(
     private val chatrooms: List<Chatroom>,
-    private val onEnterClicked: (Chatroom) -> Unit
-) : RecyclerView.Adapter<ChatroomAdapter.ViewHolder>() {
+    private val onEnter: (Chatroom) -> Unit
+) : RecyclerView.Adapter<ChatroomAdapter.VH>() {
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvName = view.findViewById<TextView>(R.id.tvChatroomName)
-        val tvTime = view.findViewById<TextView>(R.id.tvTime)
-        val tvLocation = view.findViewById<TextView>(R.id.tvLocation)
-        val btnEnter = view.findViewById<Button>(R.id.btnEnter)
+    inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvName: TextView = itemView.findViewById(R.id.tvChatroomName)
+        private val tvTime: TextView = itemView.findViewById(R.id.tvTime)
+        private val tvLoc: TextView = itemView.findViewById(R.id.tvLocation)
+        private val btnEnter: Button = itemView.findViewById(R.id.btnEnter)
 
-        fun bind(chatroom: Chatroom) {
-            tvName.text = chatroom.name
-            tvTime.text = "시간: ${chatroom.time}"
-            tvLocation.text = "장소: ${chatroom.location}"
-            btnEnter.setOnClickListener {
-                onEnterClicked(chatroom)
-            }
+        fun bind(cr: Chatroom) {
+            tvName.text = cr.name
+            tvTime.text = cr.time
+            tvLoc.text = cr.location
+            btnEnter.setOnClickListener { onEnter(cr) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.card_item, parent, false)
-        return ViewHolder(view)
+        return VH(view)
     }
 
     override fun getItemCount(): Int = chatrooms.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(chatrooms[position])
-    }
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(chatrooms[position])
 }
